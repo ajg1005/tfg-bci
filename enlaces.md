@@ -21,4 +21,4 @@
 
 ### TDAH
 - [IEEE DataPort — ADHD EEG](https://ieee-dataport.org/)
-- [Automatic Identification of Children with ADHD from EEG Brain Waves]([https://ieee-dataport.org/](https://www.mdpi.com/2624-6120/4/1/10#Feature_Extraction_and_Feature_Selection)) 
+- [Automatic Identification of Children with ADHD from EEG Brain Waves](https://www.mdpi.com/2624-6120/4/1/10) 
