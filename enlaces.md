@@ -16,7 +16,7 @@
 
 ### BCI
 - [BCI Competition IV](http://www.bbci.de/competition/iv/)
--[An Open, Diverse and Machine Learning Ready P300-based Brain-Computer Interface Dataset](https://physionet.org/content/bigp3bci/1.0.0/)
+- [An Open, Diverse and Machine Learning Ready P300-based Brain-Computer Interface Dataset](https://physionet.org/content/bigp3bci/1.0.0/)
 - [PhysioNet EEG Motor Movement](https://physionet.org/content/eegmmidb/1.0.0/)
 
 ### TDAH
