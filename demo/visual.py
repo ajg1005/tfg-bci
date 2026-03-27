@@ -11,27 +11,27 @@ def _save_fig(fig, save_path):
         fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
 
-def plot_confusion_matrix(model, X_test, y_test, save_path=None):
+def plot_confusion_matrix(y_test, y_score, save_path=None):
     fig, ax = plt.subplots(figsize=(6, 5))
-    ConfusionMatrixDisplay.from_estimator(model, X_test, y_test, ax=ax)
+    ConfusionMatrixDisplay.from_predictions(y_test, y_score, ax=ax)
     plt.tight_layout()
     _save_fig(fig, save_path)
     plt.show()
     plt.close(fig)
 
 
-def plot_roc_curve(model, X_test, y_test, save_path=None):
+def plot_roc_curve(y_test, y_score, save_path=None):
     fig, ax = plt.subplots(figsize=(6, 5))
-    RocCurveDisplay.from_estimator(model, X_test, y_test, ax=ax)
+    RocCurveDisplay.from_predictions(y_test, y_score, ax=ax)
     plt.tight_layout()
     _save_fig(fig, save_path)
     plt.show()
     plt.close(fig)
 
 
-def plot_precision_recall_curve(model, X_test, y_test, save_path=None):
+def plot_precision_recall_curve(y_test, y_score, save_path=None):
     fig, ax = plt.subplots(figsize=(6, 5))
-    PrecisionRecallDisplay.from_estimator(model, X_test, y_test, ax=ax)
+    PrecisionRecallDisplay.from_predictions(y_test, y_score, ax=ax)
     plt.tight_layout()
     _save_fig(fig, save_path)
     plt.show()

@@ -4,7 +4,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 
 
 def get_models(random_state=42):
@@ -17,13 +17,12 @@ def get_models(random_state=42):
                 class_weight="balanced"
             )),
         ]),
-        "svm_rbf": Pipeline([
-            ("scaler", StandardScaler()),
-            ("model", SVC(
-                kernel="rbf",
-                probability=True,
-                random_state=random_state,
-                class_weight="balanced"
+      "linear_svc": Pipeline([
+        ("scaler", StandardScaler()),
+        ("model", LinearSVC(
+            class_weight="balanced",
+            random_state=random_state,
+            max_iter=5000
             )),
         ]),
         "gaussian_nb": Pipeline([
