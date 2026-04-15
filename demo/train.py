@@ -61,13 +61,33 @@ def main():
 
     print("Shape X_features:", X_features.shape)
 
-    # Dividir en entrenamiento y prueba por sujetos
-    cv_splits = make_group_kfold_splits(
-    X_features,
-    y_epochs,
-    groups_epochs,
-    n_splits=5,
+    # Split final train/test por sujetos
+
+    X_train_full, X_test_final, y_train_full, y_test_final, groups_train_full, groups_test_final = make_group_shuffle_split(
+        X_features,
+        y_epochs,
+        groups_epochs,
+        test_size=0.2,
+        random_state=42,
     )
+
+    print("\n=== SPLIT FINAL TRAIN/TEST ===")
+    print("Sujetos train final:", len(set(groups_train_full)))
+    print("Sujetos test final:", len(set(groups_test_final)))
+    print("Epochs train final:", len(y_train_full))
+    print("Epochs test final:", len(y_test_final))
+
+    overlap = set(groups_train_full) & set(groups_test_final)
+    print("Solapamiento de sujetos entre train y test:", len(overlap))
+
+    # CV solo dentro de train
+    cv_splits = make_group_kfold_splits(
+        X_train_full,
+        y_train_full,
+        groups_train_full,
+        n_splits=5,
+    )
+
  
     # Cargar modelos
     models = get_models()
@@ -183,8 +203,67 @@ def main():
             save_path=model_figures_dir / "precision_recall_curve.png",
         )
 
-    print("\nResumen final de cross-validation:")
-    print(summary_df)
+    # Elegir mejor modelo usando la media de CV
+
+    best_model_name = summary_df[("F1-score", "mean")].idxmax()
+    print(f"\nMejor modelo según media de F1 en CV: {best_model_name}")
+
+    best_model = clone(models[best_model_name])
+
+
+    # Rntrenar mejor modelo con todo el train
+    best_model.fit(X_train_full, y_train_full)
+
+    # Evaluación final en test no visto
+    y_test_pred = best_model.predict(X_test_final)
+
+    if hasattr(best_model, "predict_proba"):
+        y_test_score = best_model.predict_proba(X_test_final)[:, 1]
+    elif hasattr(best_model, "decision_function"):
+        y_test_score = best_model.decision_function(X_test_final)
+    else:
+        y_test_score = None
+
+    final_metrics = {
+        "Modelo": best_model_name,
+        "Accuracy": accuracy_score(y_test_final, y_test_pred),
+        "Precision": precision_score(y_test_final, y_test_pred, average="weighted", zero_division=0),
+        "Recall": recall_score(y_test_final, y_test_pred, average="weighted", zero_division=0),
+        "F1-score": f1_score(y_test_final, y_test_pred, average="weighted", zero_division=0),
+    }
+
+    final_metrics_df = pd.DataFrame([final_metrics])
+    #final_metrics_df.to_csv(OUTPUT_DIR / "final_test_results.csv", index=False)
+
+    print("\n=== RESULTADOS FINALES EN TEST ===")
+    print(final_metrics_df)
+    print("\nClassification report final:")
+    print(classification_report(y_test_final, y_test_pred, zero_division=0))
+
+    # Figuras finales del test
+    final_figures_dir = figures_dir / best_model_name / "final_test"
+    final_figures_dir.mkdir(parents=True, exist_ok=True)
+
+    plot_confusion_matrix(
+        y_test_final,
+        y_test_pred,
+        save_path=final_figures_dir / "confusion_matrix.png",
+    )
+
+    if y_test_score is not None:
+        plot_roc_curve(
+            y_test_final,
+            y_test_score,
+            save_path=final_figures_dir / "roc_curve.png",
+        )
+
+        plot_precision_recall_curve(
+            y_test_final,
+            y_test_score,
+            save_path=final_figures_dir / "precision_recall_curve.png",
+        )
+
+
 
 
 if __name__ == "__main__":
